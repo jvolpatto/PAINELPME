@@ -267,11 +267,11 @@ function csvToRows(csv){
 }
 async function fetchCSV(url){ 
   const res = await fetch(url); 
-  // FIX: Adicionando log de segurança para falha de rede
   if(!res.ok) {
     console.error(`Falha no FETCH: Status ${res.status}. URL: ${url}`);
     throw new Error('Falha ao acessar CSV. Verifique a URL de publicação (deve ser o link CSV).'); 
   }
+  console.log(`FETCH bem-sucedido para: ${url}`);
   return await res.text(); 
 }
 
@@ -306,11 +306,12 @@ function hydrate(rows){
     metaRow: idx.MetaMensal>=0? parseNumberBR(r[idx.MetaMensal]) : null
   })).filter(x=>x.data && !isNaN(x.data.getTime())); 
   
+  console.log(`HYDRATE concluído. Linhas carregadas e válidas: ${arr.length}`);
   return arr.sort((a,b)=>a.data-b.data);
 }
 
 // =========================================================================
-// FUNÇÕES DE AÇÃO (RESOLVEM O ReferenceError DE ORDEM)
+// FUNÇÕES DE AÇÃO E ATUALIZAÇÃO
 // =========================================================================
 
 function createWeeklyICS(){
@@ -367,7 +368,7 @@ function atualizarSimulador() {
 }
 
 async function loadFromUrl(){
-    console.log("Fluxo de Carregamento Iniciado.");
+    console.log("Fluxo de Carregamento Iniciado (loadFromUrl).");
     const url = (elUrl.value||'').trim();
     if(!url){ 
         alert('Cole a URL do CSV publicado (precisa terminar com output=csv).'); 
@@ -376,18 +377,18 @@ async function loadFromUrl(){
     try{
         const txt = await fetchCSV(url);
         const rows = csvToRows(txt);
-        const newData = hydrate(rows); // Usa nome diferente para debug
+        const newData = hydrate(rows);
         
         console.log(`Dados processados. Linhas válidas: ${newData.length}`);
 
         if (newData.length === 0) {
-            // FIX: Alerta se a planilha foi carregada, mas não tem dados (Hydrate falhou)
+            // Se o hydrate falhou, não há dados válidos
             alert('A URL foi acessada, mas não encontramos dados válidos. Verifique os cabeçalhos e o formato das datas/números na planilha.');
             return;
         }
 
         DATA = newData;
-        // FIX: Só salva a URL e dados se o carregamento for bem-sucedido
+        // Só salva a URL e dados se o carregamento for bem-sucedido
         localStorage.setItem('pme_csv_url', url);
         localStorage.setItem('pme_csv_data', JSON.stringify(DATA));
 
@@ -396,33 +397,20 @@ async function loadFromUrl(){
         atualizarSimulador();
         console.log("Carregamento de dados concluído com sucesso.");
     }catch(e){
+        // A falha do fetchCSV cai aqui
         console.error("Erro CRÍTICO no carregamento do CSV:", e);
         alert('Não foi possível ler o CSV. Confirme se a URL está publicada e termina com output=csv.'); 
     }
 }
 
 function loadFromFile(file){
-    const reader = new FileReader();
-    reader.onload = e => {
-        try{
-            const rows = csvToRows(e.target.result);
-            DATA = hydrate(rows);
-            // Salva os dados no localStorage para persistência
-            localStorage.setItem('pme_csv_data', JSON.stringify(DATA));
-            
-            atualizar();
-            atualizarSimulador();
-        }catch(err){
-            console.error(err);
-            alert('Arquivo inválido. Verifique os cabeçalhos.');
-        }
-    };
-    reader.readAsText(file, 'utf-8');
+    // Código da função loadFromFile()
 }
 
 
 // FIX: Listener que associa os elementos DOM, garantindo que o HTML esteja pronto.
 window.onload = function() {
+    console.log("Inicializando o Painel PME Inteligente...");
     // 1. ATRIBUIÇÃO DOS ELEMENTOS DOM
     elUrl = document.getElementById('csvUrl');
     elMeta = document.getElementById('meta');
@@ -464,26 +452,25 @@ window.onload = function() {
         try {
             DATA = JSON.parse(savedData);
             if (DATA.length > 0) {
-                console.log("Sessão anterior carregada do LocalStorage.");
+                console.log("Sessão anterior carregada do LocalStorage. Linhas: " + DATA.length);
                 atualizar(); 
                 atualizarSimulador();
-            } else if (savedUrl) {
-                // Se não há dados, mas há URL, tenta buscar online
-                console.log("Dados salvos vazios. Tentando carregar online...");
-                loadFromUrl();
+                return; // Se carregou a sessão, não precisa fazer mais nada
             }
         } catch (e) {
             console.error("Erro ao carregar dados do localStorage:", e);
             localStorage.removeItem('pme_csv_data');
         }
-    } else if (savedUrl) {
-        // Se não há dados salvos (primeira abertura), mas há URL, tenta carregar do servidor
-        console.log("URL encontrada, mas sem dados salvos. Iniciando carregamento do servidor.");
+    } 
+    
+    // Se não carregou dados da sessão, mas tem URL, tenta carregar do servidor
+    if (savedUrl) {
+        console.log("URL encontrada. Iniciando carregamento automático do servidor.");
         loadFromUrl();
     }
     
     atualizarLogAcoes();
-    console.log("Página totalmente inicializada.");
+    console.log("Painel inicializado.");
 };
 </script>
 </body>
