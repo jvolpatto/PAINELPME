@@ -50,14 +50,6 @@ footer{padding:24px;color:#6b7280;text-align:center}
 .range label{font-size:12px;color:var(--mut)}
 .range input{width:100%}
 .mut{color:#6b7280;font-size:12px}
-
-/* Estilos para o Guia Incorporado */
-#guia-content h2 {color: var(--atl); font-size: 1.5em; margin-top: 1em;}
-#guia-content ul, #guia-content ol {padding-left: 20px;}
-#guia-content ul li, #guia-content ol li {margin-bottom: 8px; line-height: 1.5;}
-.guia-toggle {cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; font-weight: 600;}
-.guia-toggle i {transition: transform 0.3s;}
-.collapsed i {transform: rotate(-90deg);}
 </style>
 </head>
 <body>
@@ -73,7 +65,6 @@ footer{padding:24px;color:#6b7280;text-align:center}
         <input id="csvUrl" class="input" style="min-width:420px" placeholder="Cole aqui a URL CSV do seu Google Sheets...">
         <button id="btnCarregar">Carregar Dados</button>
         <input id="fileInput" class="input" type="file" accept=".csv">
-        <button id="btnAbrirGuia" class="input" style="background:var(--off)">Abrir Guia Rápido 📚</button> <!-- NOVO BOTÃO -->
         <div class="pill">
           <label>Período</label>
           <select id="period"><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="365">Últimos 12 meses</option></select>
@@ -153,13 +144,11 @@ footer{padding:24px;color:#6b7280;text-align:center}
     <div class="card">
       <div class="row"><strong>📅 Últimas ações registradas</strong><span id="logInfo" class="mut">—</span></div>
       <div class="list" style="margin-top:10px" id="logAcoes">
-        <!-- Conteúdo agora é injetado pelo JavaScript -->
-      </div>
+        </div>
     </div>
     <div class="card">
       <div class="row"><strong>⏰ Rotina sugerida</strong><span class="mut">(para criar hábito)</span></div>
       <ul id="rotinaSugerida">
-        <!-- O item dinâmico será injetado aqui -->
         <li>Diariamente (19h): registrar vendas (30s)</li>
         <li>Segunda: revisar painel e definir 1 ação</li>
         <li>Último dia do mês: ajustar meta</li>
@@ -168,74 +157,6 @@ footer{padding:24px;color:#6b7280;text-align:center}
     </div>
   </section>
 
-  <!-- NOVO CARD: GUIA RÁPIDO INCORPORADO -->
-  <section class="card" style="margin-top:14px;">
-    <div id="guiaToggle" class="guia-toggle" onclick="toggleGuia()">
-        <span>Guia Rápido: Como Usar o Painel 📚</span>
-        <i style="font-style: normal; font-weight: bold; font-size: 1.2em;">▼</i>
-    </div>
-    <div id="guiaContent" style="display:none; margin-top: 15px;">
-        <hr>
-        <div id="guia-content">
-            <!-- CONTEÚDO DO GUIA v2.3 INJETADO AQUI -->
-            
-            <h2>1️⃣ O que é o seu Painel de Ação?</h2>
-            <ul>
-              <li>É uma ferramenta HTML leve, focada em transformar sua planilha de vendas em ações práticas.</li>
-              <li>Gera recomendações específicas e permite simular o impacto das decisões antes de executá-las.</li>
-              <li>É seu diário de bordo: rastreia seu progresso em atingir a meta e monitora suas ações de melhoria.</li>
-            </ul>
-            
-            <h2>2️⃣ Como Iniciar e Alimentar o Painel</h2>
-            <ol>
-              <li><strong>Conexão de Dados:</strong> Cole o link **CSV** da sua Planilha Google no campo superior do Painel e clique em <span class="badge">Carregar Dados</span>.</li>
-              <li><strong>Registro Diário:</strong> Use o botão <span class="badge">Abrir formulário diário</span> para registrar suas vendas e custos (30 segundos).</li>
-              <li><strong>Atualização:</strong> Sempre que quiser ver os números atualizados, clique em <span class="badge">Carregar Dados</span> novamente.</li>
-            </ol>
-            <p class="badge">Dica: O painel usa a meta mais recente registrada na planilha ou a meta que você inserir manualmente no campo do topo.</p>
-            
-            <h2>3️⃣ Foco na Decisão: Insights e Simulador</h2>
-            <ul>
-              <li><strong>🔎 O que os dados dizem:</strong> Analisa Margem, Meta, Recorrência e Tendência para identificar problemas (<span style="color:var(--bad);font-weight:600">Vermelho</span>), alertas (<span style="color:var(--warn);font-weight:600">Amarelo</span>) e acertos (<span style="color:var(--ok);font-weight:600">Verde</span>).</li>
-              <li><strong>🧭 O que você pode fazer:</strong> Oferece sugestões concretas (Ex: Max. Lucro, Planejamento, Aumentar Ticket). Use o botão <span class="badge">Criar ação</span> para gerar um Plano de Ação (.txt) e registrar no seu log.</li>
-              <li><strong>🧪 Simulador:</strong> Teste o impacto de aumentar o Ticket ou Clientes, ou reduzir Custos. O resultado (Faturamento/Margem/Meta) é calculado instantaneamente.</li>
-            </ul>
-            
-            <h2>4️⃣ Indicadores-chave: O Glossário Completo</h2>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;">
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>💰 Faturamento</strong><br><span>Soma do Valor total de vendas no período.</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>👥 Clientes</strong><br><span>Total de clientes que compraram no período.</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>🧾 Ticket médio</strong><br><span>Média gasta por cliente (Faturamento ÷ Clientes).</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>📈 Margem (%)</strong><br><span>Seu lucro percentual (após todos os custos). Alvo ideal: acima de 12%.</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>💸 Margem Contribuição</strong><br><span>O que sobra da venda para pagar os Custos Fixos. Essencial para decidir sobre promoções.</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>👤 Custo/Cliente (CAC)</strong><br><span>Custo Fixo dividido por cliente. Monitore a eficiência da sua estrutura.</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>💼 Custos (% vendas)</strong><br><span>O percentual da sua receita gasto com custos (Custos Totais ÷ Faturamento).</span></div>
-              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>🎯 Meta atingida (%)</strong><br><span>Seu progresso em relação à Meta Mensal.</span></div>
-            </div>
-            
-            <h2>5️⃣ O Que Cada Gráfico Te Diz</h2>
-            <ul>
-              <li><strong>Evolução Semanal/Período:</strong> Mostra se você está vendendo mais ou menos que no período anterior. Se a linha estiver subindo (tendência positiva), reforce o estoque do item mais vendido!</li>
-              <li><strong>Desempenho de Margem e Custo:</strong> É seu termômetro financeiro. Ele te diz:
-                <ul>
-                  <li>Se a barra <span style="color:var(--azul);font-weight:600">Azul</span> (Margem) está acima da linha amarela de 12%, sua operação está saudável.</li>
-                  <li>Se a barra <span style="color:var(--bad);font-weight:600">Vermelha</span> (Custos) está abaixo da linha amarela de 88%, seus custos estão sob controle.</li>
-                </ul>
-              </li>
-            </ul>
-            
-            <h2>6️⃣ Rotina de Gestão (Manutenção do Hábito)</h2>
-            <ol>
-              <li><strong>🚨 Tarefa Foco:</strong> O primeiro item da lista na seção Rotina Sugerida é a ação mais crítica do dia, baseada nos seus resultados atuais.</li>
-              <li><strong>Cultura Diária:</strong> Preencher o formulário (30s).</li>
-              <li><strong>Cultura Semanal:</strong> Toda segunda, revisar o painel e definir 1 ação de melhoria.</li>
-              <li><strong>Cultura Mensal:</strong> Ajustar a meta para o próximo ciclo.</li>
-              <li>Use <span class="badge">Criar lembrete</span> para agendar a rotina semanal no seu calendário.</li>
-            </ol>
-            
-        </div>
-    </div>
-  </section>
 </div>
 
 <footer>
@@ -248,11 +169,6 @@ const elUrl = document.getElementById('csvUrl');
 const elMeta = document.getElementById('meta');
 const elPeriod = document.getElementById('period');
 const elFile = document.getElementById('fileInput');
-
-// Cores HEX da paleta (para Chart.js)
-const COR_AZUL = '#2a4fda'; // --azul
-const COR_BAD = '#dc2626';  // --bad
-const COR_WARN = '#f59e0b'; // --warn
 
 // Lógica de armazenamento local para Ações Registradas
 function carregarAcoes() {
@@ -373,7 +289,7 @@ function hydrate(rows){
 }
 
 // =========================================================================
-// FUNÇÕES DE AÇÃO (MOVIDAS PARA O INÍCIO PARA RESOLVER O ReferenceError)
+// FUNÇÕES DE AÇÃO (RESOLVEM O ReferenceError DE ORDEM)
 // =========================================================================
 
 function createWeeklyICS(){
@@ -383,4 +299,500 @@ function createWeeklyICS(){
   const nextMon = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff, 9, 0, 0);
   function toICSDate(d){
     const pad = n => String(n).padStart(2,'0');
-    return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + pad(d.getUTCM
+    return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+  }
+  
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//PME Inteligente//NONSGML v1.0//EN',
+    'BEGIN:VEVENT',
+    'UID:' + Date.now() + '@pmeinteligente.com.br',
+    'DTSTAMP:' + toICSDate(now),
+    'DTSTART:' + toICSDate(nextMon),
+    'DTEND:' + toICSDate(new Date(nextMon.getTime() + 30*60000)), // Duração de 30 minutos
+    'RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=MO', // Repetir toda segunda-feira
+    'SUMMARY:Revisão Semanal Painel PME (Decisão Guiada)',
+    'DESCRIPTION:Revisar KPIs, analisar Insights e definir 1 ação de melhoria. Não se esqueça de registrar as vendas diárias!',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
+
+  const blob = new Blob([icsContent], {type: 'text/calendar;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Lembrete_PME_Semanal.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function openDailyForm(){
+  const url = 'https://docs.google.com/forms/d/e/1FAIpQLSdOnLyR3-TjKrpPKuItqBzeKkiu9OO3OX6Z5ZnfIBd4wVe41g/viewform?usp=header';
+  window.open(url, '_blank');
+}
+
+// Função placeholder para gerar plano de ação (agora recebe o tipo)
+function generateActionPlan(options){
+    const { tipo } = options;
+    const simResultado = document.getElementById('simResultado').textContent;
+    let plano = `Plano de Ação (Gerado em ${new Date().toLocaleDateString('pt-BR')})\n\n`;
+
+    if (tipo === 'simulacao') {
+        plano += 'OBJETIVO: Validar estratégia de simulação.\n';
+        plano += `RESULTADO ESPERADO: ${simResultado}\n\n`;
+        plano += 'PASSOS DE EXECUÇÃO:\n';
+
+        const simTicketVal = parseInt(document.getElementById('simTicket').value);
+        const simClientesVal = parseInt(document.getElementById('simClientes').value);
+        const simCustosVal = parseInt(document.getElementById('simCustos').value);
+
+        if (simTicketVal > 0) {
+            plano += `* Aumentar Ticket Médio em R$${simTicketVal} (Ação: Treinamento de venda complementar ou Combo de produtos).\n`;
+        }
+        if (simClientesVal > 0) {
+            plano += `* Aumentar Clientes/Dia em ${simClientesVal} (Ação: Campanha de atração ou Promoção relâmpago).\n`;
+        }
+        if (simCustosVal > 0) {
+            plano += `* Reduzir Custos em ${simCustosVal}% (Ação: Renegociação de fornecedores ou Otimização de processos internos).\n`;
+        }
+        
+        plano += '\nCHECKLIST DE ACOMPANHAMENTO:\n';
+        plano += '- [ ] Comunicar a meta para a equipe\n';
+        plano += '- [ ] Iniciar as ações acima\n';
+        plano += '- [ ] Monitorar o Painel diariamente\n';
+        plano += '- [ ] Ajustar a estratégia em 7 dias\n';
+        
+        salvarAcao({nome: `Simulação: ${simTicketVal > 0 ? 'Ticket' : ''}${simClientesVal > 0 ? ' Clientes' : ''}${simCustosVal > 0 ? ' Custos' : ''}`.trim()});
+
+    } else if (tipo === 'manual') {
+        const nomeAcao = prompt("Qual o nome da ação que você está registrando?");
+        if (!nomeAcao) return;
+        plano += 'OBJETIVO: Ação manual registrada no log.\n';
+        plano += `AÇÃO REGISTRADA: ${nomeAcao}\n\n`;
+        plano += 'PASSOS DE EXECUÇÃO:\n';
+        plano += '* Descreva os passos detalhados para esta ação.\n';
+        
+        salvarAcao({nome: nomeAcao});
+    }
+
+    const blob = new Blob([plano], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Plano_de_Acao.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    atualizarLogAcoes();
+    alert('Plano de Ação gerado e baixado como Plano_de_Acao.txt!');
+}
+
+// =========================================================================
+// LÓGICA DE CÁLCULO
+// =========================================================================
+
+function calcular() {
+    const metaMensal = parseNumberBR(elMeta.value) || 0;
+    const periodo = parseInt(elPeriod.value);
+    const endDate = new Date(DATA[DATA.length - 1].data);
+    const startDate = new Date(endDate.getTime() - (periodo - 1) * 24 * 60 * 60 * 1000);
+
+    const filtered = DATA.filter(d => d.data >= startDate);
+    
+    // 1. Cálculos de Agregação
+    const fat = filtered.reduce((sum, d) => sum + d.valor, 0);
+    const clientes = filtered.reduce((sum, d) => sum + d.clientes, 0);
+    const custoFixo = filtered.reduce((sum, d) => sum + (d.cf === null ? 0 : d.cf), 0) / (periodo/30);
+    const custoVariavel = filtered.reduce((sum, d) => sum + (d.cv === null ? 0 : d.cv), 0);
+    
+    // Custos totais
+    const custosTotais = custoFixo + custoVariavel;
+
+    // Métricas
+    const ticketMedio = clientes > 0 ? fat / clientes : 0;
+    const margemCont = fat - custoVariavel; // Margem de Contribuição: (Vendas - Custo Variável)
+    const lucro = fat - custosTotais;
+    const margemPct = fat > 0 ? (lucro / fat) : 0;
+    const custoPct = fat > 0 ? (custosTotais / fat) : 0;
+    const metaPct = metaMensal > 0 ? (fat / metaMensal) : 0;
+    const cac = clientes > 0 ? custoFixo / clientes : 0;
+    
+    // Cálculo da Variação Semanal (Trend)
+    const hoje = new Date();
+    const last7Days = DATA.filter(d => d.data >= new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000));
+    const prior7Days = DATA.filter(d => d.data >= new Date(hoje.getTime() - 14 * 24 * 60 * 60 * 1000) && d.data < new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000));
+    
+    const fatLast7 = last7Days.reduce((sum, d) => sum + d.valor, 0);
+    const fatPrior7 = prior7Days.reduce((sum, d) => sum + d.valor, 0);
+    
+    let trend = 0;
+    if (fatPrior7 > 0) {
+        trend = (fatLast7 - fatPrior7) / fatPrior7;
+    } else if (fatLast7 > 0) {
+        trend = 1; // Se faturamento anterior era 0 e agora é positivo
+    }
+
+    // 2. Cálculo da Simulação
+    function simular(simTicket, simClientes, simCustos){
+        // Valores ajustados
+        const novoTicket = ticketMedio + simTicket;
+        const novosClientes = clientes + (simClientes * (periodo / 30)); 
+        const novoCustoFixo = custoFixo * (1 - simCustos/100); 
+
+        // Novo Faturamento (assumindo que o ticket se aplica a todos os clientes)
+        const novoFat = novosClientes * novoTicket * (periodo / (clientes/fat*periodo));
+        
+        // Novo Custo Total
+        const novoCustosTotais = novoCustoFixo + custoVariavel;
+        
+        // Novo Lucro
+        const novoLucro = novoFat - novoCustosTotais;
+        const novaMargemPct = novoFat > 0 ? (novoLucro / novoFat) : 0;
+        const novaMetaPct = metaMensal > 0 ? (novoFat / metaMensal) : 0;
+
+        return {
+            novoFat: novoFat,
+            novoLucro: novoLucro,
+            novaMargemPct: novaMargemPct,
+            novaMetaPct: novaMetaPct
+        };
+    }
+
+    return { fat, clientes, ticketMedio, margemCont, lucro, margemPct, custoPct, metaPct, cac, trend, custosTotais, simular, metaMensal, filtered, custoFixo, custoVariavel };
+}
+
+function atualizar() {
+    if (DATA.length === 0) return;
+    
+    const { fat, clientes, ticketMedio, margemCont, lucro, margemPct, custoPct, metaPct, cac, trend, custosTotais, simular, metaMensal, filtered, custoFixo, custoVariavel } = calcular();
+    const periodo = parseInt(elPeriod.value);
+    
+    // 1. Atualizar KPIs
+    document.getElementById('kpiFat').textContent = fmtBR(fat);
+    setDot(document.getElementById('dotFat'), trend + 1);
+    document.getElementById('descFat').textContent = `Total em ${periodo} dias`;
+
+    document.getElementById('kpiCli').textContent = clientes.toLocaleString('pt-BR');
+    setDot(document.getElementById('dotCli'), 1); // Não tem métrica de status para Cliente
+
+    document.getElementById('kpiTicket').textContent = fmtBR(ticketMedio);
+    setDot(document.getElementById('dotTicket'), 1); // Não tem métrica de status para Ticket
+
+    document.getElementById('kpiMargem').textContent = (margemPct * 100).toFixed(1) + '%';
+    setDot(document.getElementById('dotMargem'), margemPct / 0.12); // Meta 12%
+
+    document.getElementById('kpiMC').textContent = fmtBR(margemCont);
+    document.getElementById('descMC').textContent = `Lucro Antes dos Fixos`;
+
+    document.getElementById('kpiCAC').textContent = fmtBR(cac);
+    setDot(document.getElementById('dotCAC'), 1 - (cac / (ticketMedio * 0.5))); // Meta CAC <= 50% do Ticket Médio (estimado)
+
+    document.getElementById('kpiCustos').textContent = (custoPct * 100).toFixed(1) + '%';
+    setDot(document.getElementById('dotCustos'), 1 - (custoPct / 0.15)); // Meta Custos <= 15%
+
+    document.getElementById('kpiMeta').textContent = (metaPct * 100).toFixed(1) + '%';
+    setDot(document.getElementById('dotMeta'), metaPct);
+
+    // 2. Atualizar Trend Info (Variação Semanal)
+    const trendEl = document.getElementById('trendInfo');
+    const trendDesc = trend > 0 ? 'Subindo' : (trend < 0 ? 'Caindo' : 'Estável');
+    const trendFmt = (Math.abs(trend) * 100).toFixed(1) + '%';
+    trendEl.textContent = `${trendFmt} (${trendDesc})`;
+    trendEl.style.background = trend > 0.05 ? 'var(--ok)' : (trend < -0.05 ? 'var(--bad)' : 'var(--warn)');
+    
+    // 3. Atualizar Charts
+    updateChartVendas(filtered);
+    updateChartMargemCusto({margemPct, custoPct, custosTotais, fat});
+
+    // 4. Atualizar Insights e Recomendações
+    updateInsights({margemPct, metaPct, trend, cac, ticketMedio, lucro});
+    
+    // 5. Atualizar Rotina (tarefa foco)
+    updateRotina({margemPct, metaPct, cac});
+
+    // 6. Atualizar Log de Ações
+    atualizarLogAcoes();
+}
+
+function updateChartVendas(data) {
+    const dates = data.map(d => d.data.toLocaleDateString('pt-BR'));
+    const valores = data.map(d => d.valor);
+
+    if (chartVendas) chartVendas.destroy();
+
+    const chartData = {
+        labels: dates,
+        datasets: [{
+            label: 'Vendas Diárias (R$)',
+            data: valores,
+            borderColor: COR_AZUL,
+            backgroundColor: 'rgba(42, 79, 218, 0.1)',
+            fill: true,
+            tension: 0.2,
+            pointRadius: 0
+        }]
+    };
+
+    chartVendas = new Chart(document.getElementById('chartVendas'), {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { beginAtZero: true, display: false }
+            }
+        }
+    });
+}
+
+function updateChartMargemCusto({margemPct, custoPct, custosTotais, fat}) {
+    if (chartMargemCusto) chartMargemCusto.destroy();
+
+    const chartData = {
+        labels: ['Sua Margem %', 'Seu Custo %'],
+        datasets: [{
+            label: 'Percentual',
+            data: [margemPct * 100, custoPct * 100],
+            backgroundColor: [COR_AZUL, COR_BAD],
+            borderColor: [COR_AZUL, COR_BAD],
+            borderWidth: 1
+        }]
+    };
+    
+    // A linha de referência é a meta de Margem (12%) e de Custo (100% - 12% = 88%)
+    const lineMargin = 12; 
+    const lineCost = 88;
+
+    chartMargemCusto = new Chart(document.getElementById('chartMargemCusto'), {
+        type: 'bar',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: true },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: v => v + '%' },
+                    // Linhas de referência (Annotation plugin não está incluído, fazemos com o padrão)
+                    afterBuildTicks: axis => {
+                        if (axis.id === 'y') {
+                            axis.ticks.push({ value: lineMargin, label: 'Margem Ideal (12%)' });
+                            axis.ticks.push({ value: lineCost, label: 'Custo Máximo (88%)' });
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateInsights({margemPct, metaPct, trend, cac, ticketMedio, lucro}) {
+    const insightsEl = document.getElementById('insights');
+    const recosEl = document.getElementById('recos');
+    insightsEl.innerHTML = '';
+    recosEl.innerHTML = '';
+    
+    let insights = [];
+    let recos = [];
+    
+    // Lógica dos Insights
+    if (metaPct < 0.85) {
+        insights.push({ type: 'bad', text: 'Meta em Risco:', detail: `Meta atingida em ${(metaPct * 100).toFixed(0)}%. É necessário acelerar.` });
+        recos.push({ text: 'Acelerar Vendas:', detail: 'Foco no faturamento e ticket médio.' });
+    } else if (metaPct >= 0.95 && metaPct < 1.05) {
+        insights.push({ type: 'warn', text: 'Reta Final:', detail: `Meta próxima! Atingiu ${(metaPct * 100).toFixed(0)}%.` });
+        recos.push({ text: 'Manter Foco:', detail: 'Bater a meta e garantir a margem. Foco na qualidade da venda.' });
+    } else if (metaPct >= 1.05) {
+        insights.push({ type: 'ok', text: 'Meta Batida!', detail: `Parabéns! Foco em maximizar a margem de lucro.` });
+        recos.push({ text: 'Maximizar Lucro:', detail: 'Bater a meta e garantir a margem. Foco na qualidade da venda.' });
+    }
+
+    if (margemPct < 0.10) {
+        insights.push({ type: 'bad', text: 'Margem Apertada:', detail: `Margem de ${(margemPct * 100).toFixed(1)}%. Os custos estão muito altos ou o preço de venda está baixo.` });
+        recos.push({ text: 'Revisar Custos/Preços:', detail: 'Simular redução de custos ou aumento de ticket.' });
+    } else if (margemPct >= 0.10 && margemPct < 0.15) {
+        insights.push({ type: 'warn', text: 'Margem OK, mas pode melhorar:', detail: `Margem de ${(margemPct * 100).toFixed(1)}%. Busque 15%+.` });
+    } else {
+        insights.push({ type: 'ok', text: 'Margem Saudável:', detail: `Margem de ${(margemPct * 100).toFixed(1)}%. Operação eficiente.` });
+    }
+    
+    if (trend < -0.05 && metaPct < 1.0) {
+        insights.push({ type: 'bad', text: 'Queda de Vendas:', detail: `Tendência caindo ${(Math.abs(trend) * 100).toFixed(1)}% na última semana. É urgente reagir.` });
+        recos.push({ text: 'Ação de Reversão:', detail: 'Promover o produto de maior margem ou fazer uma campanha rápida.' });
+    } else if (trend > 0.05 && metaPct < 1.0) {
+        insights.push({ type: 'ok', text: 'Tendência Forte:', detail: `Vendas subindo ${(trend * 100).toFixed(1)}%. Mantenha o foco.` });
+    }
+    
+    if (cac > ticketMedio * 0.5 && cac > 0) {
+        insights.push({ type: 'bad', text: 'CAC Elevado:', detail: `Custo/Cliente (${fmtBR(cac)}) é alto em relação ao Ticket (${fmtBR(ticketMedio)}).` });
+        recos.push({ text: 'Reduzir Custos Fixos:', detail: 'Revisar despesas de aluguel/serviços para diminuir o CAC.' });
+    }
+
+    // Geração do HTML dos Insights
+    insights.forEach(i => {
+        insightsEl.innerHTML += `<div class="insight ${i.type}"><strong>${i.text}</strong><span>${i.detail}</span></div>`;
+    });
+    // Geração do HTML das Recomendações
+    recos.forEach(r => {
+        recosEl.innerHTML += `<div class="item"><strong>${r.text}</strong><br><span class="mut">${r.detail}</span></div>`;
+    });
+    
+    if (insights.length === 0) {
+        insightsEl.innerHTML = '<div class="insight ok"><strong>Tudo Certo!</strong><span>Seus KPIs estão dentro do esperado. Continue monitorando e use o Simulador.</span></div>';
+    }
+    if (recos.length === 0) {
+        recosEl.innerHTML = '<div class="item mut" style="text-align:center;">Nenhuma ação urgente no momento. Use o Simulador!</div>';
+    }
+}
+
+function updateRotina({margemPct, metaPct, cac}) {
+    const rotinaEl = document.getElementById('rotinaSugerida');
+    const focoItem = rotinaEl.querySelector('.foco-item');
+    
+    // Remove o item de foco anterior, se existir
+    if (focoItem) {
+        focoItem.remove();
+    }
+    
+    let focoText = '';
+    
+    if (margemPct < 0.10) {
+        focoText = '🚨 Foco hoje: **Revisar e renegociar Custos** com fornecedores (Margem baixa).';
+    } else if (cac > 0 && cac > (calcular().ticketMedio * 0.5)) {
+        focoText = '🚨 Foco hoje: **Identificar e cortar 1 Custo Fixo** (CAC alto).';
+    } else if (metaPct < 0.85) {
+        focoText = '🚨 Foco hoje: **Criar 1 Promoção relâmpago** (Meta em risco).';
+    } else {
+        focoText = '🚨 Foco hoje: **Max. Lucro** - Vender o produto de maior margem.';
+    }
+    
+    const novoFoco = document.createElement('li');
+    novoFoco.className = 'foco-item';
+    // Usamos replace para garantir que o texto em negrito seja renderizado como tal
+    novoFoco.innerHTML = focoText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Insere o novo item de foco no início da lista (após o item de registro diário)
+    const dailyItem = rotinaEl.children[0]; 
+    rotinaEl.insertBefore(novoFoco, dailyItem.nextSibling); 
+}
+
+// =========================================================================
+// INICIALIZAÇÃO E EVENT LISTENERS
+// =========================================================================
+
+async function loadFromUrl(){
+    const url = (elUrl.value||'').trim();
+    if(!url){ alert('Cole a URL do CSV publicado (precisa terminar com output=csv).'); return; }
+    try{
+        const txt = await fetchCSV(url);
+        const rows = csvToRows(txt);
+        DATA = hydrate(rows);
+        atualizar();
+    }catch(e){
+        console.error(e);
+        alert('Não foi possível ler o CSV. Confira a URL (precisa terminar com output=csv).');
+    }
+}
+
+function loadFromFile(file){
+    const reader = new FileReader();
+    reader.onload = e => {
+        try{
+            const rows = csvToRows(e.target.result);
+            DATA = hydrate(rows);
+            atualizar();
+        }catch(err){
+            console.error(err);
+            alert('Arquivo inválido. Verifique os cabeçalhos.');
+        }
+    };
+    reader.readAsText(file, 'utf-8');
+}
+
+// SIMULADOR LISTENERS
+const elSimTicket = document.getElementById('simTicket');
+const elSimClientes = document.getElementById('simClientes');
+const elSimCustos = document.getElementById('simCustos');
+
+function atualizarSimulador() {
+    if (DATA.length === 0) return;
+    
+    const simTicket = parseInt(elSimTicket.value);
+    const simClientes = parseInt(elSimClientes.value);
+    const simCustos = parseInt(elSimCustos.value);
+    
+    // Atualizar badges
+    document.getElementById('simTicketVal').textContent = `+R$${simTicket}`;
+    document.getElementById('simClientesVal').textContent = `+${simClientes}`;
+    document.getElementById('simCustosVal').textContent = `-${simCustos}%`;
+    
+    // Calcular simulação
+    const { simular } = calcular();
+    const { novoFat, novoLucro, novaMargemPct, novaMetaPct } = simular(simTicket, simClientes, simCustos);
+
+    const resultadoEl = document.getElementById('simResultado');
+    resultadoEl.innerHTML = `
+        📊 Resultado simulado: 
+        <strong>${fmtBR(novoLucro)}</strong> (Lucro) • 
+        <strong>${(novaMargemPct * 100).toFixed(1)}%</strong> (Margem) • 
+        <strong>${(novaMetaPct * 100).toFixed(0)}%</strong> (Meta)
+    `;
+    resultadoEl.style.backgroundColor = novaMetaPct >= 1.05 ? 'var(--ok)' : novaMetaPct >= 0.95 ? 'var(--warn)' : 'var(--bad)';
+    resultadoEl.style.color = 'white';
+}
+
+elSimTicket.addEventListener('input', atualizarSimulador);
+elSimClientes.addEventListener('input', atualizarSimulador);
+elSimCustos.addEventListener('input', atualizarSimulador);
+
+
+// LISTENERS PRINCIPAIS
+document.getElementById('btnCarregar').addEventListener('click', loadFromUrl);
+elFile.addEventListener('change', ev => { if(ev.target.files && ev.target.files[0]) loadFromFile(ev.target.files[0]); });
+['change','keyup'].forEach(ev => { elMeta.addEventListener(ev, atualizar); elPeriod.addEventListener(ev, atualizar); });
+
+// LISTENERS DE AÇÃO
+document.getElementById('btnRegistrar').addEventListener('click', ()=>generateActionPlan({tipo:'manual'}));
+document.getElementById('btnMeta').addEventListener('click', ()=>alert('Atualize o campo Meta Mensal no topo e os KPIs serão recalculados.'));
+document.getElementById('btnPlano').addEventListener('click', ()=> generateActionPlan({ tipo:'simulacao' }));
+document.getElementById('btnLembrete').addEventListener('click', createWeeklyICS);
+document.getElementById('btnForm').addEventListener('click', openDailyForm);
+
+// Inicialização: Tenta carregar dados do localStorage e atualizar o log
+document.addEventListener('DOMContentLoaded', () => {
+    // Tenta carregar URL salva
+    const savedUrl = localStorage.getItem('pme_csv_url');
+    if (savedUrl) {
+        elUrl.value = savedUrl;
+        loadFromUrl(); // Tenta carregar automaticamente
+    }
+    // Salva a URL ao carregar
+    document.getElementById('btnCarregar').addEventListener('click', () => {
+        const url = elUrl.value.trim();
+        if (url) {
+            localStorage.setItem('pme_csv_url', url);
+        }
+    });
+
+    atualizarLogAcoes();
+    if (DATA.length > 0) {
+        atualizarSimulador(); // Inicializa o simulador se houver dados
+    } else {
+        // Estado inicial do simulador quando não há dados
+        document.getElementById('simResultado').textContent = '📊 Resultado simulado: Carregue os dados primeiro.';
+    }
+});
+</script>
+</body>
+</html>
