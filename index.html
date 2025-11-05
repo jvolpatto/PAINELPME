@@ -54,7 +54,6 @@ footer{padding:24px;color:#6b7280;text-align:center}
 /* Estilos para o Guia Incorporado */
 #guia-content h2 {color: var(--atl); font-size: 1.5em; margin-top: 1em;}
 #guia-content ul, #guia-content ol {padding-left: 20px;}
-#guia-content ul li, #guia-content ol li {margin-bottom: 8px; line-height: 1.5;}
 .guia-toggle {cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; font-weight: 600;}
 .guia-toggle i {transition: transform 0.3s;}
 .collapsed i {transform: rotate(-90deg);}
@@ -419,7 +418,7 @@ window.onload = function() {
     elFile = document.getElementById('fileInput');
     
     // 2. LISTENERS
-    // FIX: Listener de Carregar Dados é desnecessário aqui; o evento agora é onclick no HTML.
+    // FIX: O evento agora é chamado diretamente pelo onclick no HTML
     elFile.addEventListener('change', ev => { if(ev.target.files && ev.target.files[0]) loadFromFile(ev.target.files[0]); });
     ['change','keyup'].forEach(ev => { elMeta.addEventListener(ev, atualizar); elPeriod.addEventListener(ev, atualizar); });
 
