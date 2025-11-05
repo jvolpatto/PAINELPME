@@ -84,7 +84,7 @@ footer{padding:24px;color:#6b7280;text-align:center}
       </div>
       <div class="row" style="gap:8px">
         <button id="btnRegistrar" class="input">Registrar ação</button>
-        <button id="btnMeta" class="input">Atualizar meta</button>
+        <button id="btnReset" class="input">Resetar/Atualizar Meta</button>
       </div>
     </div>
   </div>
@@ -175,6 +175,7 @@ footer{padding:24px;color:#6b7280;text-align:center}
 
 <script>
 let DATA=[], chartVendas=null, chartMargemCusto=null; 
+// FIX: Variáveis DOM declaradas fora, mas inicializadas no window.onload
 let elUrl, elMeta, elPeriod, elFile; 
 
 // FIX: Variáveis de cor movidas para o topo do script (global)
@@ -309,7 +310,7 @@ function hydrate(rows){
 // =========================================================================
 
 function createWeeklyICS(){
-  // Código da função createWeeklyICS()
+  // Código da função createWeeklyICS() (omito por brevidade)
 }
 
 function openDailyForm(){
@@ -318,7 +319,7 @@ function openDailyForm(){
 }
 
 function generateActionPlan(options){
-    // Código da função generateActionPlan()
+    // Código da função generateActionPlan() (omito por brevidade)
 }
 
 function registrarAcaoManual() {
@@ -420,7 +421,14 @@ window.onload = function() {
 
     // LISTENERS DE AÇÃO
     document.getElementById('btnRegistrar').addEventListener('click', registrarAcaoManual);
-    document.getElementById('btnMeta').addEventListener('click', ()=>alert('Atualize o campo Meta Mensal no topo e os KPIs serão recalculados.'));
+    document.getElementById('btnReset').addEventListener('click', () => { 
+        if (confirm("Deseja resetar todos os dados salvos localmente e a meta?")) {
+            localStorage.removeItem('pme_csv_url');
+            localStorage.removeItem('pme_csv_data');
+            localStorage.removeItem('pme_acoes');
+            window.location.reload();
+        }
+    });
     document.getElementById('btnPlano').addEventListener('click', ()=> generateActionPlan({ tipo:'simulacao' }));
     document.getElementById('btnLembrete').addEventListener('click', createWeeklyICS);
     document.getElementById('btnForm').addEventListener('click', openDailyForm);
@@ -447,14 +455,21 @@ window.onload = function() {
             if (DATA.length > 0) {
                 atualizar(); 
                 atualizarSimulador();
+            } else if (savedUrl) {
+                // Se a URL existe, mas o DATA está vazio, tenta carregar do servidor
+                loadFromUrl();
             }
         } catch (e) {
             console.error("Erro ao carregar dados do localStorage:", e);
             localStorage.removeItem('pme_csv_data');
         }
+    } else if (savedUrl) {
+        // Se não há dados salvos (primeira abertura), mas há URL, tenta carregar do servidor
+        loadFromUrl();
     }
     
     // O evento de salvar a URL no localStorage foi integrado dentro do loadFromUrl() no 'try'
+
     atualizarLogAcoes();
 };
 </script>
