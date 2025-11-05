@@ -267,7 +267,11 @@ function csvToRows(csv){
 }
 async function fetchCSV(url){ 
   const res = await fetch(url); 
-  if(!res.ok) throw new Error('Falha ao acessar CSV. Verifique a URL de publicação.'); 
+  // FIX: Adicionando log de segurança para falha de rede
+  if(!res.ok) {
+    console.error(`Falha no FETCH: Status ${res.status}. URL: ${url}`);
+    throw new Error('Falha ao acessar CSV. Verifique a URL de publicação (deve ser o link CSV).'); 
+  }
   return await res.text(); 
 }
 
@@ -310,7 +314,7 @@ function hydrate(rows){
 // =========================================================================
 
 function createWeeklyICS(){
-  // Código da função createWeeklyICS() (omito por brevidade)
+  // Código da função createWeeklyICS()
 }
 
 function openDailyForm(){
@@ -319,7 +323,7 @@ function openDailyForm(){
 }
 
 function generateActionPlan(options){
-    // Código da função generateActionPlan() (omito por brevidade)
+    // Código da função generateActionPlan()
 }
 
 function registrarAcaoManual() {
@@ -363,6 +367,7 @@ function atualizarSimulador() {
 }
 
 async function loadFromUrl(){
+    console.log("Fluxo de Carregamento Iniciado.");
     const url = (elUrl.value||'').trim();
     if(!url){ 
         alert('Cole a URL do CSV publicado (precisa terminar com output=csv).'); 
@@ -371,8 +376,17 @@ async function loadFromUrl(){
     try{
         const txt = await fetchCSV(url);
         const rows = csvToRows(txt);
-        DATA = hydrate(rows);
+        const newData = hydrate(rows); // Usa nome diferente para debug
         
+        console.log(`Dados processados. Linhas válidas: ${newData.length}`);
+
+        if (newData.length === 0) {
+            // FIX: Alerta se a planilha foi carregada, mas não tem dados (Hydrate falhou)
+            alert('A URL foi acessada, mas não encontramos dados válidos. Verifique os cabeçalhos e o formato das datas/números na planilha.');
+            return;
+        }
+
+        DATA = newData;
         // FIX: Só salva a URL e dados se o carregamento for bem-sucedido
         localStorage.setItem('pme_csv_url', url);
         localStorage.setItem('pme_csv_data', JSON.stringify(DATA));
@@ -380,9 +394,10 @@ async function loadFromUrl(){
         // Atualiza a interface
         atualizar();
         atualizarSimulador();
+        console.log("Carregamento de dados concluído com sucesso.");
     }catch(e){
-        console.error("Erro no carregamento do CSV:", e);
-        alert('Não foi possível ler o CSV. Confirme se a URL está publicada e termina com output=csv. Detalhes no console.'); 
+        console.error("Erro CRÍTICO no carregamento do CSV:", e);
+        alert('Não foi possível ler o CSV. Confirme se a URL está publicada e termina com output=csv.'); 
     }
 }
 
@@ -408,24 +423,21 @@ function loadFromFile(file){
 
 // FIX: Listener que associa os elementos DOM, garantindo que o HTML esteja pronto.
 window.onload = function() {
-    // ATRIBUIÇÃO DOS ELEMENTOS DOM
+    // 1. ATRIBUIÇÃO DOS ELEMENTOS DOM
     elUrl = document.getElementById('csvUrl');
     elMeta = document.getElementById('meta');
     elPeriod = document.getElementById('period');
     elFile = document.getElementById('fileInput');
     
-    // LISTENERS PRINCIPAIS
+    // 2. LISTENERS
     document.getElementById('btnCarregar').addEventListener('click', loadFromUrl);
     elFile.addEventListener('change', ev => { if(ev.target.files && ev.target.files[0]) loadFromFile(ev.target.files[0]); });
     ['change','keyup'].forEach(ev => { elMeta.addEventListener(ev, atualizar); elPeriod.addEventListener(ev, atualizar); });
 
-    // LISTENERS DE AÇÃO
     document.getElementById('btnRegistrar').addEventListener('click', registrarAcaoManual);
     document.getElementById('btnReset').addEventListener('click', () => { 
         if (confirm("Deseja resetar todos os dados salvos localmente e a meta?")) {
-            localStorage.removeItem('pme_csv_url');
-            localStorage.removeItem('pme_csv_data');
-            localStorage.removeItem('pme_acoes');
+            localStorage.clear(); // Limpa TUDO: URL, Dados e Ações
             window.location.reload();
         }
     });
@@ -433,30 +445,31 @@ window.onload = function() {
     document.getElementById('btnLembrete').addEventListener('click', createWeeklyICS);
     document.getElementById('btnForm').addEventListener('click', openDailyForm);
     
-    // LISTENERS DO SIMULADOR
     document.getElementById('simTicket').addEventListener('input', atualizarSimulador);
     document.getElementById('simClientes').addEventListener('input', atualizarSimulador);
     document.getElementById('simCustos').addEventListener('input', atualizarSimulador);
 
 
-    // Inicialização: Tenta carregar dados do localStorage
+    // 3. INICIALIZAÇÃO DA SESSÃO
     const savedUrl = localStorage.getItem('pme_csv_url');
     const savedData = localStorage.getItem('pme_csv_data');
     
-    // 1. Carrega URL salva (resolve a imagem anexada)
+    // Carrega URL salva
     if (savedUrl) {
         elUrl.value = savedUrl;
     }
     
-    // 2. TENTA CARREGAR DADOS DA SESSÃO SALVA (para que a tela não fique vazia)
+    // TENTA CARREGAR DADOS DA SESSÃO SALVA (Persistência)
     if (savedData) {
         try {
             DATA = JSON.parse(savedData);
             if (DATA.length > 0) {
+                console.log("Sessão anterior carregada do LocalStorage.");
                 atualizar(); 
                 atualizarSimulador();
             } else if (savedUrl) {
-                // Se a URL existe, mas o DATA está vazio, tenta carregar do servidor
+                // Se não há dados, mas há URL, tenta buscar online
+                console.log("Dados salvos vazios. Tentando carregar online...");
                 loadFromUrl();
             }
         } catch (e) {
@@ -465,12 +478,12 @@ window.onload = function() {
         }
     } else if (savedUrl) {
         // Se não há dados salvos (primeira abertura), mas há URL, tenta carregar do servidor
+        console.log("URL encontrada, mas sem dados salvos. Iniciando carregamento do servidor.");
         loadFromUrl();
     }
     
-    // O evento de salvar a URL no localStorage foi integrado dentro do loadFromUrl() no 'try'
-
     atualizarLogAcoes();
+    console.log("Página totalmente inicializada.");
 };
 </script>
 </body>
