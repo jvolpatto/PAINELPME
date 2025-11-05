@@ -50,6 +50,14 @@ footer{padding:24px;color:#6b7280;text-align:center}
 .range label{font-size:12px;color:var(--mut)}
 .range input{width:100%}
 .mut{color:#6b7280;font-size:12px}
+
+/* Estilos para o Guia Incorporado */
+#guia-content h2 {color: var(--atl); font-size: 1.5em; margin-top: 1em;}
+#guia-content ul, #guia-content ol {padding-left: 20px;}
+#guia-content ul li, #guia-content ol li {margin-bottom: 8px; line-height: 1.5;}
+.guia-toggle {cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; font-weight: 600;}
+.guia-toggle i {transition: transform 0.3s;}
+.collapsed i {transform: rotate(-90deg);}
 </style>
 </head>
 <body>
@@ -297,11 +305,11 @@ function hydrate(rows){
 }
 
 // =========================================================================
-// FUNÇÕES DE GRÁFICOS E ATUALIZAÇÃO DE UI
+// FUNÇÕES DE AÇÃO (RESOLVEM O ReferenceError DE ORDEM)
 // =========================================================================
 
 function createWeeklyICS(){
-  // Código da função createWeeklyICS() omitido por brevidade
+  // Código da função createWeeklyICS()
 }
 
 function openDailyForm(){
@@ -310,7 +318,7 @@ function openDailyForm(){
 }
 
 function generateActionPlan(options){
-    // Código da função generateActionPlan() omitido por brevidade
+    // Código da função generateActionPlan()
 }
 
 function registrarAcaoManual() {
@@ -399,6 +407,7 @@ function loadFromFile(file){
 
 // FIX: Listener que associa os elementos DOM, garantindo que o HTML esteja pronto.
 window.onload = function() {
+    // ATRIBUIÇÃO DOS ELEMENTOS DOM
     elUrl = document.getElementById('csvUrl');
     elMeta = document.getElementById('meta');
     elPeriod = document.getElementById('period');
@@ -426,10 +435,12 @@ window.onload = function() {
     const savedUrl = localStorage.getItem('pme_csv_url');
     const savedData = localStorage.getItem('pme_csv_data');
     
+    // 1. Carrega URL salva (resolve a imagem anexada)
     if (savedUrl) {
         elUrl.value = savedUrl;
     }
     
+    // 2. TENTA CARREGAR DADOS DA SESSÃO SALVA (para que a tela não fique vazia)
     if (savedData) {
         try {
             DATA = JSON.parse(savedData);
@@ -443,14 +454,7 @@ window.onload = function() {
         }
     }
     
-    // Listener para salvar a URL no próximo clique de carregamento
-    document.getElementById('btnCarregar').addEventListener('click', () => {
-        const url = elUrl.value.trim();
-        if (url) {
-            localStorage.setItem('pme_csv_url', url);
-        }
-    });
-
+    // O evento de salvar a URL no localStorage foi integrado dentro do loadFromUrl() no 'try'
     atualizarLogAcoes();
 };
 </script>
