@@ -71,7 +71,8 @@ footer{padding:24px;color:#6b7280;text-align:center}
     <div class="row">
       <div class="toolbar" style="flex-wrap:wrap">
         <input id="csvUrl" class="input" style="min-width:420px" placeholder="Cole aqui a URL CSV do seu Google Sheets...">
-        <button id="btnCarregar">Carregar Dados</button>
+        <!-- FIX: Ação direta no clique do botão -->
+        <button id="btnCarregar" onclick="loadFromUrl()">Carregar Dados</button> 
         <input id="fileInput" class="input" type="file" accept=".csv">
         <div class="pill">
           <label>Período</label>
@@ -418,7 +419,7 @@ window.onload = function() {
     elFile = document.getElementById('fileInput');
     
     // 2. LISTENERS
-    document.getElementById('btnCarregar').addEventListener('click', loadFromUrl);
+    // FIX: Listener de Carregar Dados é desnecessário aqui; o evento agora é onclick no HTML.
     elFile.addEventListener('change', ev => { if(ev.target.files && ev.target.files[0]) loadFromFile(ev.target.files[0]); });
     ['change','keyup'].forEach(ev => { elMeta.addEventListener(ev, atualizar); elPeriod.addEventListener(ev, atualizar); });
 
@@ -455,16 +456,17 @@ window.onload = function() {
                 console.log("Sessão anterior carregada do LocalStorage. Linhas: " + DATA.length);
                 atualizar(); 
                 atualizarSimulador();
-                return; // Se carregou a sessão, não precisa fazer mais nada
+            } else if (savedUrl) {
+                // Se a URL existe, mas o DATA está vazio, tenta carregar do servidor
+                console.log("Dados salvos vazios. Tentando carregar online...");
+                loadFromUrl();
             }
         } catch (e) {
             console.error("Erro ao carregar dados do localStorage:", e);
             localStorage.removeItem('pme_csv_data');
         }
-    } 
-    
-    // Se não carregou dados da sessão, mas tem URL, tenta carregar do servidor
-    if (savedUrl) {
+    } else if (savedUrl) {
+        // Se não há dados salvos (primeira abertura), mas há URL, tenta carregar do servidor
         console.log("URL encontrada. Iniciando carregamento automático do servidor.");
         loadFromUrl();
     }
