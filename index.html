@@ -1,22 +1,875 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<title>PME Inteligente: Gestão Simplificada 360°</title> 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--azul:#2a4fda;--atl:#0b2574;--off:#eff3ee;--bg:#ffffff;--txt:#0f172a;--mut:#64748b;--b:#e5e7eb;--ok:#16a34a;--warn:#f59e0b;--bad:#dc2626;--shadow:0 8px 24px rgba(2,6,23,.06)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:linear-gradient(90deg,var(--azul),var(--atl));color:#fff;padding:22px 18px;box-shadow:var(--shadow); text-align: center;}
+h1{margin:0;font-weight:800;letter-spacing:-.3px}
+small{opacity:.9}
+.container{max-width:1200px;margin:18px auto;padding:0 14px}
+.card{background:#fff;border:1px solid var(--b);border-radius:18px;box-shadow:var(--shadow);padding:14px}
+.grid{display:grid;gap:14px}
+@media(min-width:920px){.cols-3{grid-template-columns:repeat(3,1fr)}.cols-2{grid-template-columns:2fr 1fr}.cols-2e{grid-template-columns:1fr 1fr}}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px}
+.input,select,button{border:1px solid var(--b);border-radius:12px;padding:10px 12px;background:#fff}
+label{font-size:13px;color:var(--mut)}
+.pill{display:flex;align-items:center;gap:10px;border:1px solid var(--b);border-radius:999px;background:var(--off);padding:8px 12px}
+.badge{font-size:12px;border:1px solid var(--b);border-radius:999px;padding:5px 10px;background:var(--off);color:#111}
+.kpi{display:flex;gap:10px;align-items:flex-start}
+.kpi .dot{width:14px;height:14px;border-radius:50%}
+.kpi h3{margin:0;font-size:13px;color:var(--mut)}
+.kpi .value{font-size:28px;font-weight:800;letter-spacing:-.4px}
+.hint{font-size:12px;color:var(--mut);margin-top:6px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.legend{display:flex;gap:10px;flex-wrap:wrap}
+.legend span{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mut)}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.insights{display:grid;gap:10px}
+@media(min-width:900px){.insights{grid-template-columns:1fr 1fr}}
+.insight{border-left:6px solid var(--azul);background:#f8fafc;border:1px solid var(--b);padding:10px 12px;border-radius:12px}
+.insight strong{display:block;margin-bottom:4px}
+.insight.warn{border-left-color:var(--warn);background:#fff7ed}
+.insight.bad{border-left-color:var(--bad);background:#fef2f2}
+.insight.ok{border-left-color:var(--ok);background:#f0fdf4}
+.item{border:1px solid var(--b);border-radius:12px;padding:10px;background:#fafafa}
+.list{display:grid;gap:10px}
+code{background:#f1f5f9;border:1px solid var(--b);padding:2px 6px;border-radius:6px}
+hr{border:none;border-top:1px solid var(--b);margin:8px 0}
+footer{padding:24px;color:#6b7280;text-align:center}
+.hidden{display:none !important}
+.range{display:grid;gap:6px}
+.range label{font-size:12px;color:var(--mut)}
+.range input{width:100%}
+.mut{color:#6b7280;font-size:12px}
+
+/* Estilos para o Guia Incorporado */
+#guia-content h2 {color: var(--atl); font-size: 1.5em; margin-top: 1em;}
+#guia-content ul, #guia-content ol {padding-left: 20px;}
+#guia-content ul li, #guia-content ol li {margin-bottom: 8px; line-height: 1.5;}
+.guia-toggle {cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; font-weight: 600;}
+.guia-toggle i {transition: transform 0.3s;}
+.collapsed i {transform: rotate(-90deg);}
+</style>
 </head>
 <body>
+<header>
+  <h1>PME Inteligente: Gestão Simplificada 360°</h1>
+  <small>Inteligência de Dados para o Seu Dia a Dia.</small> 
+</header>
+
 <div class="container">
-<a href="#" class="btn btn-info btn-lg" onclick="reloadPage()">
-<span class="glyphicon glyphicon-refresh"></span> Enviar
-</a>
+  <div class="card">
+    <div class="row">
+      <div class="toolbar" style="flex-wrap:wrap">
+        <input id="csvUrl" class="input" style="min-width:420px" placeholder="Cole aqui a URL CSV do seu Google Sheets...">
+        <button id="btnCarregar">Carregar Dados</button>
+        <input id="fileInput" class="input" type="file" accept=".csv">
+        <div class="pill">
+          <label>Período</label>
+          <select id="period"><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="365">Últimos 12 meses</option></select>
+        </div>
+        <div class="pill">
+          <label>Meta mensal (R$)</label>
+          <input id="meta" class="input" type="number" step="100" value="15000">
+        </div>
+      </div>
+      <div class="row" style="gap:8px">
+        <button id="btnRegistrar" class="input">Registrar ação</button>
+        <button id="btnMeta" class="input">Atualizar meta</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="grid cols-3" style="margin-top:14px">
+    <div class="card"><div class="kpi"><span id="dotFat" class="dot"></span><div><h3>💰 Faturamento (período)</h3><div id="kpiFat" class="value">—</div><div id="descFat" class="hint">—</div></div></div></div>
+    <div class="card"><div class="kpi"><span id="dotCli" class="dot"></span><div><h3>👥 Clientes</h3><div id="kpiCli" class="value">—</div><div id="descCli" class="hint">—</div></div></div></div>
+    <div class="card"><div class="kpi"><span id="dotTicket" class="dot"></span><div><h3>🧾 Ticket médio</h3><div id="kpiTicket" class="value">—</div><div id="descTicket" class="hint">—</div></div></div></div>
+  </section>
+  <section class="grid cols-3" style="margin-top:14px">
+    <div class="card"><div class="kpi"><span id="dotMargem" class="dot"></span><div><h3>📈 Margem (%)</h3><div id="kpiMargem" class="value">—</div><div id="descMargem" class="hint">—</div></div></div></div>
+    <div class="card"><div class="kpi"><span id="dotMC" class="dot" style="background:var(--azul)"></span><div><h3>💸 Margem Contribuição</h3><div id="kpiMC" class="value">—</div><div id="descMC" class="hint">—</div></div></div></div>
+    <div class="card"><div class="kpi"><span id="dotCAC" class="dot" style="background:var(--warn)"></span><div><h3>👤 Custo/Cliente (CAC)</h3><div id="kpiCAC" class="value">—</div><div id="descCAC" class="hint">—</div></div></div></div>
+  </section>
+  <section class="grid cols-3" style="margin-top:14px">
+    <div class="card"><div class="kpi"><span id="dotCustos" class="dot"></span><div><h3>💼 Custos (% vendas)</h3><div id="kpiCustos" class="value">—</div><div id="descCustos" class="hint">—</div></div></div></div>
+    <div class="card"><div class="kpi"><span id="dotMeta" class="dot"></span><div><h3>🎯 Meta atingida (%)</h3><div id="kpiMeta" class="value">—</div><div id="descMeta" class="hint">—</div></div></div></div>
+  </section>
+
+  <section class="grid cols-2" style="margin-top:14px">
+    <div class="card">
+      <div class="row"><strong>Evolução semanal de vendas</strong><span id="trendInfo" class="badge">—</span></div>
+      <canvas id="chartVendas" height="120"></canvas>
+    </div>
+    <div class="card">
+      <div class="row"><strong>Desempenho de Margem e Custo (Lucratividade)</strong><span class="badge">Últimos Períodos</span></div>
+      <canvas id="chartMargemCusto" height="120"></canvas>
+    </div>
+  </section>
+
+  <section class="grid cols-2e" style="margin-top:14px">
+    <div class="card">
+      <div class="row"><strong>🔎 O que os dados dizem agora</strong><span class="mut">(gerado automaticamente)</span></div>
+      <div id="insights" class="insights" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <div class="row"><strong>🧭 O que você pode fazer</strong><span class="mut">(recomendações práticas)</span></div>
+      <div id="recos" class="list" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <div class="row"><strong>🧪 Simulador “e se eu…”</strong><span class="mut">(impacto estimado no mês)</span></div>
+    <div class="grid cols-3" style="margin-top:8px">
+      <div class="range">
+        <label>✏️ Ajustar ticket médio (+R$) <span id="simTicketVal" class="badge">+0</span></label>
+        <input id="simTicket" type="range" min="0" max="10" step="1" value="0">
+      </div>
+      <div class="range">
+        <label>📣 Aumentar clientes/dia (+) <span id="simClientesVal" class="badge">+0</span></label>
+        <input id="simClientes" type="range" min="0" max="20" step="1" value="0">
+      </div>
+      <div class="range">
+        <label>🔧 Reduzir custos (%) <span id="simCustosVal" class="badge">0%</span></label>
+        <input id="simCustos" type="range" min="0" max="10" step="1" value="0">
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div id="simResultado" class="pill">📊 Resultado simulado: —</div>
+      <button id="btnPlano" class="input">Gerar plano de ação</button>
+    </div>
+  </section>
+
+  <section class="grid cols-2e" style="margin-top:14px">
+    <div class="card">
+      <div class="row"><strong>📅 Últimas ações registradas</strong><span id="logInfo" class="mut">—</span></div>
+      <div class="list" style="margin-top:10px" id="logAcoes">
+        </div>
+    </div>
+    <div class="card">
+      <div class="row"><strong>⏰ Rotina sugerida</strong><span class="mut">(para criar hábito)</span></div>
+      <ul id="rotinaSugerida">
+        <li>Diariamente (19h): registrar vendas (30s)</li>
+        <li>Segunda: revisar painel e definir 1 ação</li>
+        <li>Último dia do mês: ajustar meta</li>
+      </ul>
+      <div class="row" style="gap:8px"><button id="btnLembrete" class="input">Criar lembrete</button><button id="btnForm" class="input">Abrir formulário diário</button></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px;">
+    <div id="guiaToggle" class="guia-toggle" onclick="toggleGuia()">
+        <span>Guia Rápido: Como Usar o Painel 📚</span>
+        <i style="font-style: normal; font-weight: bold; font-size: 1.2em;">▼</i>
+    </div>
+    <div id="guiaContent" style="display:none; margin-top: 15px;">
+        <hr>
+        <div id="guia-content">
+            <h2>1️⃣ O que é o seu Painel de Ação?</h2>
+            <ul>
+              <li>É uma ferramenta HTML leve, focada em transformar sua planilha de vendas em ações práticas.</li>
+              <li>Gera recomendações específicas e permite simular o impacto das decisões antes de executá-las.</li>
+              <li>É seu diário de bordo: rastreia seu progresso em atingir a meta e monitora suas ações de melhoria.</li>
+            </ul>
+            
+            <h2>2️⃣ Como Iniciar e Alimentar o Painel</h2>
+            <ol>
+              <li><strong>Conexão de Dados:</strong> Cole o link **CSV** da sua Planilha Google no campo superior do Painel e clique em <span class="badge">Carregar Dados</span>.</li>
+              <li><strong>Registro Diário:</strong> Use o botão <span class="badge">Abrir formulário diário</span> para registrar suas vendas e custos (30 segundos).</li>
+              <li><strong>Atualização:</strong> Sempre que quiser ver os números atualizados, clique em <span class="badge">Carregar Dados</span> novamente.</li>
+            </ol>
+            <p class="badge">Dica: O painel usa a meta mais recente registrada na planilha ou a meta que você inserir manualmente no campo do topo.</p>
+            
+            <h2>3️⃣ Foco na Decisão: Insights e Simulador</h2>
+            <ul>
+              <li><strong>🔎 O que os dados dizem:</strong> Analisa Margem, Meta, Recorrência e Tendência para identificar problemas (<span style="color:var(--bad);font-weight:600">Vermelho</span>), alertas (<span style="color:var(--warn);font-weight:600">Amarelo</span>) e acertos (<span style="color:var(--ok);font-weight:600">Verde</span>).</li>
+              <li><strong>🧭 O que você pode fazer:</strong> Oferece sugestões concretas (Ex: Max. Lucro, Planejamento, Aumentar Ticket). Use o botão <span class="badge">Criar ação</span> para gerar um Plano de Ação (.txt) e registrar no seu log.</li>
+              <li><strong>🧪 Simulador:</strong> Teste o impacto de aumentar o Ticket ou Clientes, ou reduzir Custos. O resultado (Faturamento/Margem/Meta) é calculado instantaneamente.</li>
+            </ul>
+            
+            <h2>4️⃣ Indicadores-chave: O Glossário Completo</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;">
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>💰 Faturamento</strong><br><span>Soma do Valor total de vendas no período.</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>👥 Clientes</strong><br><span>Total de clientes que compraram no período.</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>🧾 Ticket médio</strong><br><span>Média gasta por cliente (Faturamento ÷ Clientes).</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>📈 Margem (%)</strong><br><span>Seu lucro percentual (após todos os custos). Alvo ideal: acima de 12%.</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>💸 Margem Contribuição</strong><br><span>O que sobra da venda para pagar os Custos Fixos. Essencial para decidir sobre promoções.</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>👤 Custo/Cliente (CAC)</strong><br><span>Custo Fixo dividido por cliente. Monitore a eficiência da sua estrutura.</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>💼 Custos (% vendas)</strong><br><span>O percentual da sua receita gasto com custos (Custos Totais ÷ Faturamento).</span></div>
+              <div style="border:1px solid var(--b);border-radius:12px;padding:12px;background:#fafafa;"><strong>🎯 Meta atingida (%)</strong><br><span>Seu progresso em relação à Meta Mensal.</span></div>
+            </div>
+            
+            <h2>5️⃣ O Que Cada Gráfico Te Diz</h2>
+            <ul>
+              <li><strong>Evolução Semanal/Período:</strong> Mostra se você está vendendo mais ou menos que no período anterior. Se a linha estiver subindo (tendência positiva), reforce o estoque do item mais vendido!</li>
+              <li><strong>Desempenho de Margem e Custo:</strong> É seu termômetro financeiro. Ele te diz:
+                <ul>
+                  <li>Se a barra <span style="color:var(--azul);font-weight:600">Azul</span> (Margem) está acima da linha amarela de 12%, sua operação está saudável.</li>
+                  <li>Se a barra <span style="color:var(--bad);font-weight:600">Vermelha</span> (Custos) está abaixo da linha amarela de 88%, seus custos estão sob controle.</li>
+                </ul>
+              </li>
+            </ul>
+            
+            <h2>6️⃣ Rotina de Gestão (Manutenção do Hábito)</h2>
+            <ol>
+              <li><strong>🚨 Tarefa Foco:</strong> O primeiro item da lista na seção Rotina Sugerida é a ação mais crítica do dia, baseada nos seus resultados atuais.</li>
+              <li><strong>Cultura Diária:</strong> Preencher o formulário (30s).</li>
+              <li><strong>Cultura Semanal:</strong> Toda segunda, revisar o painel e definir 1 ação de melhoria.</li>
+              <li><strong>Cultura Mensal:</strong> Ajustar a meta para o próximo ciclo.</li>
+              <li>Use <span class="badge">Criar lembrete</span> para agendar a rotina semanal no seu calendário.</li>
+            </ol>
+            
+        </div>
+    </div>
+  </section>
 </div>
- 
-    <script>
-      function reloadPage() {
-        location.reload(window.location.href);
+
+<footer>
+  © 2025 Painel PME Inteligente - Grupo 3 (Julio Volpatto, Rodrigo Santos e Mariana Santana)
+</footer>
+
+<script>
+let DATA=[], chartVendas=null, chartMargemCusto=null; 
+const elUrl = document.getElementById('csvUrl');
+const elMeta = document.getElementById('meta');
+const elPeriod = document.getElementById('period');
+const elFile = document.getElementById('fileInput');
+
+// Cores HEX da paleta (para Chart.js)
+const COR_AZUL = '#2a4fda'; // --azul
+const COR_BAD = '#dc2626';  // --bad
+const COR_WARN = '#f59e0b'; // --warn
+
+// Lógica de armazenamento local para Ações Registradas
+function carregarAcoes() {
+    try {
+        const json = localStorage.getItem('pme_acoes');
+        return json ? JSON.parse(json) : [];
+    } catch (e) {
+        console.error("Erro ao carregar ações:", e);
+        return [];
+    }
+}
+
+function salvarAcao(acao) {
+    const acoes = carregarAcoes();
+    acao.id = Date.now();
+    acao.data = new Date().toLocaleDateString('pt-BR');
+    acao.status = 'em execução';
+    acoes.unshift(acao); 
+    localStorage.setItem('pme_acoes', JSON.stringify(acoes.slice(0, 5))); // Guarda apenas as 5 mais recentes
+}
+
+function removerAcao(id) {
+    let acoes = carregarAcoes();
+    // Simplesmente remove a ação
+    acoes = acoes.filter(acao => acao.id != id);
+    localStorage.setItem('pme_acoes', JSON.stringify(acoes));
+    atualizarLogAcoes();
+}
+
+function atualizarLogAcoes() {
+    const logAcoesEl = document.getElementById('logAcoes');
+    const acoes = carregarAcoes();
+    logAcoesEl.innerHTML = '';
+    
+    if (acoes.length === 0) {
+        logAcoesEl.innerHTML = '<div class="item mut" style="text-align:center;">Nenhuma ação registrada ainda.</div>';
+        document.getElementById('logInfo').textContent = '(Vazio)';
+        return;
+    }
+
+    acoes.forEach(acao => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'item';
+        // Adiciona o botão de remoção/conclusão
+        const statusText = acao.status === 'em execução' ? '<span class="badge" style="background:var(--warn)">Em Execução</span>' : '<span class="badge" style="background:var(--ok)">Concluído</span>';
+        
+        itemEl.innerHTML = `
+            <div class="row">
+                <strong>${acao.nome}</strong>
+                <button class="input" style="padding: 4px 8px; font-size: 11px;" onclick="removerAcao(${acao.id})">Remover/Concluir</button>
+            </div>
+            <div class="hint" style="margin-top:4px; font-size: 11px;">Iniciado ${acao.data} • Status: ${acao.status}</div>
+        `;
+        logAcoesEl.appendChild(itemEl);
+    });
+    document.getElementById('logInfo').textContent = `(Total: ${acoes.length} ações)`;
+}
+
+// Helpers
+function parseNumberBR(s){
+  if (typeof s === 'number') return s;
+  if (!s) return 0;
+  const t = (''+s).trim().replace(/\s/g,''); 
+  const norm = t.match(/,\d{1,2}$/) ? t.replace(/\./g,'').replace(',', '.') : t;
+  const v = parseFloat(norm);
+  return isNaN(v) ? 0 : v;
+}
+function fmtBR(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) }
+function setDot(el, pct){ el.style.background = pct>=0.95? 'var(--ok)' : pct>=0.85? 'var(--warn)' : 'var(--bad)'; }
+function csvToRows(csv){
+  const rows=[]; let i=0, field=''; let row=[]; let quoted=false; 
+  const s=csv.replace(/\r/g,''); 
+  while(i<s.length){
+    const c=s[i];
+    if(c==='\"'){ if(quoted && s[i+1]==='\"'){ field+='\"'; i++; } else { quoted=!quoted; } }
+    else if(c===',' && !quoted){ row.push(field); field=''; }
+    else if(c==='\n' && !quoted){ row.push(field); rows.push(row); row=[]; field=''; }
+    else { field+=c; }
+    i++;
+  }
+  if(field.length||row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+async function fetchCSV(url){ const res = await fetch(url); if(!res.ok) throw new Error('Falha ao acessar CSV'); return await res.text(); }
+
+function parseDateBR(dateStr){
+    if (!dateStr || dateStr.length < 8) return null;
+    // Tenta DD/MM/AAAA (padrão brasileiro)
+    if (dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/)) {
+        const parts = dateStr.split('/');
+        // JS usa Date(YYYY, MM-1, DD)
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+    // Tenta AAAA-MM-DD ou formato ISO (padrão universal/CSV)
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+function hydrate(rows){
+  const head = rows.shift().map(h=>h.trim());
+  const idx = {
+    Data: head.indexOf('Data'), Valor: head.indexOf('Valor'), Clientes: head.indexOf('Clientes'),
+    Produto: head.indexOf('Produto'), Categoria: head.indexOf('Categoria'),
+    CF: head.indexOf('CustosFixos'), CV: head.indexOf('CustosVariaveis'), MetaMensal: head.indexOf('MetaMensal')
+  };
+  const arr = rows.map(r=>({
+    data: parseDateBR(r[idx.Data]),
+    valor: parseNumberBR(r[idx.Valor]),
+    clientes: parseInt(r[idx.Clientes]||'0',10)||0,
+    produto: idx.Produto>=0? r[idx.Produto] : '',
+    categoria: idx.Categoria>=0? r[idx.Categoria] : '',
+    cf: idx.CF>=0? parseNumberBR(r[idx.CF]) : null,
+    cv: idx.CV>=0? parseNumberBR(r[idx.CV]) : null,
+    metaRow: idx.MetaMensal>=0? parseNumberBR(r[idx.MetaMensal]) : null
+  })).filter(x=>x.data && !isNaN(x.data.getTime())); 
+  
+  return arr.sort((a,b)=>a.data-b.data);
+}
+
+function atualizar(){
+  // Carrega e atualiza o Log de Ações assim que o painel é carregado/atualizado
+  atualizarLogAcoes();
+    
+  if(!DATA.length) return;
+  const dias = parseInt(elPeriod.value,10);
+  const metaInput = parseFloat(elMeta.value||0);
+  const ate = new Date(); ate.setHours(23,59,59,999);
+  const de = new Date(ate); de.setDate(ate.getDate()-dias+1); de.setHours(0,0,0,0);
+  const cut = DATA.filter(x=>x.data>=de && x.data<=ate);
+
+  // Período anterior (para Clientes Recorrentes)
+  const deAnterior = new Date(de); deAnterior.setDate(de.getDate()-dias);
+  const ateAnterior = new Date(de); ateAnterior.setDate(de.getDate()-1);
+  const cutAnterior = DATA.filter(x=>x.data>=deAnterior && x.data<=ateAnterior);
+  
+  if(!cut.length){ 
+    alert('Não há dados no período selecionado.'); 
+    return; 
+  }
+  
+  const metaBase = (()=>{ const vals = DATA.map(x=>x.metaRow).filter(v=>!!v); return vals.length ? vals[vals.length-1] : metaInput; })();
+  const meta = metaInput>0 ? metaInput : metaBase;
+  const faturamento = cut.reduce((s,x)=>s+x.valor,0);
+  const clientes = cut.reduce((s,x)=>s+x.clientes,0);
+  const ticket = clientes>0 ? faturamento/clientes : 0;
+  
+  const somaCF = cut.reduce((s,x)=>s+(x.cf||0),0);
+  const somaCV = cut.reduce((s,x)=>s+(x.cv||0),0);
+  const custosPresentes = (somaCF+somaCV)>0;
+  
+  // Custos e Margem (Estimativa se necessário)
+  const custoVariavel = custosPresentes ? somaCV : faturamento * 0.45; 
+  const custoFixo = custosPresentes ? somaCF : faturamento * 0.23; 
+  const custoTotal = custoFixo + custoVariavel;
+  const custo = custosPresentes ? custoTotal : faturamento * 0.68;
+  
+  if (!custosPresentes){
+      console.warn("Custos Fixos/Variáveis não foram encontrados no CSV. Margem e Custos foram estimados usando 68% do Faturamento.");
+  }
+  
+  const lucro = faturamento - custo;
+  const margemContribuicao = faturamento - custoVariavel; 
+  const margem = faturamento>0 ? (lucro/faturamento) : 0;
+  const custosPct = faturamento>0 ? (custo/faturamento) : 0;
+  const pctMeta = meta>0 ? faturamento/meta : 0;
+
+  // Novo KPI: CAC
+  const cac = clientes > 0 ? custoFixo / clientes : 0;
+
+  // Atualização de KPIs na tela
+  document.getElementById('kpiFat').textContent = fmtBR(faturamento);
+  document.getElementById('descFat').textContent = `Período: ${dias} dias`;
+  document.getElementById('kpiCli').textContent = clientes.toLocaleString('pt-BR');
+  document.getElementById('descCli').textContent = `Média/dia: ${(clientes/dias).toFixed(1)}`;
+  document.getElementById('kpiTicket').textContent = fmtBR(ticket);
+  document.getElementById('descTicket').textContent = `Ticket alvo? Pense em +R$ 2–5`;
+  
+  document.getElementById('kpiMC').textContent = fmtBR(margemContribuicao);
+  document.getElementById('descMC').textContent = `Para cobrir custos fixos: ${fmtBR(custoFixo)}`;
+  document.getElementById('kpiCAC').textContent = fmtBR(cac);
+  document.getElementById('descCAC').textContent = `Custo Fixo total: ${fmtBR(custoFixo)}`;
+
+  document.getElementById('kpiMargem').textContent = (margem*100).toFixed(1)+'%';
+  document.getElementById('descMargem').textContent = `Lucro estimado: ${fmtBR(lucro)}`;
+  document.getElementById('kpiCustos').textContent = (custosPct*100).toFixed(1)+'%';
+  document.getElementById('descCustos').textContent = `Custos: ${fmtBR(custo)}` + (custosPresentes ? '' : ' (estimado)'); 
+  document.getElementById('kpiMeta').textContent = Math.round(pctMeta*100)+'%';
+  document.getElementById('descMeta').textContent = `Meta: ${fmtBR(meta)}`;
+  setDot(document.getElementById('dotFat'), pctMeta);
+  setDot(document.getElementById('dotCli'), clientes/dias>=15?1:0.8);
+  setDot(document.getElementById('dotTicket'), ticket>=25?1:0.8);
+  setDot(document.getElementById('dotMargem'), margem>=0.12?1:0.7);
+  setDot(document.getElementById('dotCustos'), (1-custosPct)>=0.40?1:0.7);
+  setDot(document.getElementById('dotMeta'), pctMeta);
+
+  // ------------------------------------------
+  // GRÁFICO 1: Evolução de Vendas
+  // ------------------------------------------
+  let labelsVendas = [];
+  let arrVendas = [];
+  let numGrupos = 4; 
+  if (dias <= 30) numGrupos = 4;
+  else if (dias <= 90) numGrupos = 3;
+  else numGrupos = 6;
+  
+  const agrupamento = new Array(numGrupos).fill(0);
+  const passoDias = Math.floor(dias / numGrupos);
+
+  for (let i = 0; i < numGrupos; i++) {
+    const dataInicial = new Date(de);
+    dataInicial.setDate(de.getDate() + i * passoDias);
+    
+    const dataFinal = (i === numGrupos - 1) 
+        ? ate 
+        : new Date(de);
+        dataFinal.setDate(de.getDate() + (i + 1) * passoDias - 1);
+
+    const slice = cut.filter(x => x.data >= dataInicial && x.data <= dataFinal);
+    agrupamento[i] = slice.reduce((s, x) => s + x.valor, 0);
+
+    if (dias <= 30) {
+      labelsVendas.push(`Sem ${i+1}`);
+    } else {
+      labelsVendas.push(`Per. ${i+1}`);
+    }
+  }
+  arrVendas = agrupamento;
+
+  if(chartVendas) chartVendas.destroy();
+  chartVendas = new Chart(document.getElementById('chartVendas'),{ type:'line', data:{labels:labelsVendas, datasets:[{label:'Vendas (R$)', data:arrVendas, tension:.35, fill:false}]}, options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}} });
+  const trend = (arrVendas.length>=2) ? arrVendas[arrVendas.length-1]-arrVendas[arrVendas.length-2] : 0;
+  const trendPct = (arrVendas.length>=2 && arrVendas[arrVendas.length-2]>0) ? (trend/arrVendas[arrVendas.length-2])*100 : 0;
+  document.getElementById('trendInfo').textContent = (trend>=0?'+':'')+trendPct.toFixed(1)+'% vs. período anterior';
+
+  // ------------------------------------------
+  // GRÁFICO 2: Desempenho de Margem e Custo (Com Cores FIXAS)
+  // ------------------------------------------
+  let labelsMargem = [];
+  let arrMargem = [];
+  let arrCustos = [];
+  
+  // Reutiliza o agrupamento de 4 períodos
+  for (let i = 0; i < numGrupos; i++) {
+    const dataInicial = new Date(de);
+    dataInicial.setDate(de.getDate() + i * passoDias);
+    
+    const dataFinal = (i === numGrupos - 1) 
+        ? ate 
+        : new Date(de);
+        dataFinal.setDate(de.getDate() + (i + 1) * passoDias - 1);
+
+    const slice = cut.filter(x => x.data >= dataInicial && x.data <= dataFinal);
+    const fatGrupo = slice.reduce((s, x) => s + x.valor, 0);
+    const custoGrupo = slice.reduce((s, x) => s + (x.cf||0) + (x.cv||0), 0);
+    
+    // Calcula Margem e Custo % do Grupo
+    const margemPct = fatGrupo > 0 ? ((fatGrupo - custoGrupo) / fatGrupo) : 0;
+    const custoPct = fatGrupo > 0 ? (custoGrupo / fatGrupo) : 0;
+    
+    arrMargem.push(margemPct * 100);
+    arrCustos.push(custoPct * 100);
+
+    if (dias <= 30) {
+      labelsMargem.push(`Sem ${i+1}`);
+    } else {
+      labelsMargem.push(`Per. ${i+1}`);
+    }
+  }
+  
+  const ALVO_MARGEM = 12; // 12%
+  const ALVO_CUSTO = 88;  // 88%
+
+  if(chartMargemCusto) chartMargemCusto.destroy();
+  chartMargemCusto = new Chart(document.getElementById('chartMargemCusto'),{ 
+      type:'bar', 
+      data:{
+          labels:labelsMargem, 
+          datasets:[
+              {data:arrMargem, label:'Margem (%)', backgroundColor: COR_AZUL},
+              {data:arrCustos, label:'Custos (% Vendas)', backgroundColor: COR_BAD}
+          ]
+      }, 
+      options:{
+          plugins:{legend:{display:true, position:'top'}}, 
+          indexAxis:'x', 
+          scales:{
+              y:{
+                  beginAtZero:true,
+                  max: 100,
+                  ticks: { callback: (value) => value + '%' },
+                  // Linhas de Alvo
+                  afterBuildTicks: axis => {
+                    axis.ticks.push({ value: ALVO_MARGEM, label: 'Meta Margem' });
+                    axis.ticks.push({ value: ALVO_CUSTO, label: 'Meta Custo' });
+                  },
+                  grid: {
+                    color: context => {
+                      if (context.tick.value === ALVO_MARGEM || context.tick.value === ALVO_CUSTO) {
+                        return COR_WARN; 
+                      }
+                      return Chart.defaults.scale.grid.color;
+                    },
+                    lineWidth: context => {
+                      if (context.tick.value === ALVO_MARGEM || context.tick.value === ALVO_CUSTO) {
+                        return 2;
+                      }
+                      return Chart.defaults.scale.grid.lineWidth;
+                    }
+                  }
+              }
+          } 
+      } 
+  });
+
+
+  // Insights
+  const box = document.getElementById('insights'); box.innerHTML='';
+  const add=(cls,t,txt)=>{ const el=document.createElement('div'); el.className='insight '+cls; el.innerHTML=`<strong>${t}</strong><span>${txt}</span>`; box.appendChild(el); };
+  
+  // Insights de Fidelidade/Recorrência
+  const clientesAtual = new Set(cut.map(x=>x.clientes));
+  const clientesAnterior = new Set(cutAnterior.map(x=>x.clientes));
+  const clientesRecorrentes = Array.from(clientesAtual).filter(id => clientesAnterior.has(id)).length;
+  const pctRecorrencia = clientesAtual.size > 0 ? clientesRecorrentes / clientesAtual.size : 0;
+  
+  if(pctRecorrencia > 0.25){
+      add('ok','Fidelidade Forte','Clientes recorrentes superam 25% do total. Invista em programa de fidelidade.');
+  } else {
+      add('warn','Recorrência Baixa','A base de clientes recorrentes é baixa. Concentre-se em reativar clientes antigos.');
+  }
+
+  // Insights Primários
+  if(trendPct>0) add('ok','Vendas em alta','Crescimento de '+trendPct.toFixed(1)+'% vs. período anterior; reforce estoque do Top-1.');
+  if(trendPct<=0) add('bad','Vendas em queda','Queda vs. período anterior; promova itens com maior margem.');
+  if(ticket<25) add('warn','Ticket médio baixo','Experimente combos para elevar o ticket em R$ 3–5.');
+  if(margem<0.12) add('bad','Margem apertada','Revise preços/insumos; busque +2 p.p. de margem.' + (custosPresentes ? '' : ' (Custo Estimado)'));
+  if(pctMeta<0.85) add('bad','Meta em risco','Atingiu '+Math.round(pctMeta*100)+'% da meta; priorize clientes recorrentes.');
+  else if(pctMeta<0.95) add('warn','Quase na meta','Faltam '+(meta - faturamento > 0 ? fmtBR(meta - faturamento) : 'R$ 0')+' para 100%.');
+  else add('ok','Na meta','Mantenha o ritmo e planeje a próxima meta (+5–10%).');
+
+  // RECOMENDAÇÕES (Dinâmicas)
+  const recos = document.getElementById('recos'); 
+  recos.innerHTML='';
+
+  function addReco(titulo, desc, pri, acao){
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.innerHTML = `
+      <div class="row">
+        <strong>${titulo}</strong>
+        <span class="badge">${pri}</span>
+      </div>
+      <div class="hint" style="margin-top:6px">${desc}</div>
+      <div class="row" style="margin-top:8px">
+        <button class="input" onclick="registrarAcaoEPlano('${titulo}', '${acao.tipo}')">Criar ação</button>
+        <button class="input">Modelo de mensagem</button>
+      </div>
+    `;
+    // Associa a geração do plano de ação e o registro ao botão "Criar ação"
+    const btnPlano = el.querySelector('button[onclick^="registrarAcaoEPlano"]');
+    if (btnPlano) {
+        btnPlano.onclick = () => {
+            generateActionPlan(acao);
+            salvarAcao({ nome: titulo }); // Salva a ação no log
+            //alert('Ação registrada no log e Plano de Ação gerado!');
+            atualizarLogAcoes();
+        };
+    }
+
+    const btnMsg = el.querySelectorAll('button')[1];
+    btnMsg.addEventListener('click', () => {
+      const texto = acao?.modeloMsg || 'Olá! Passando para te avisar de uma promoção válida hoje 😊';
+      navigator.clipboard?.writeText(texto);
+      alert('Modelo copiado para a área de transferência.');
+    });
+    recos.appendChild(el);
+  }
+
+  let count = 0;
+  let hasCriticalReco = false;
+  
+  // 1. PRIORIDADE ALTA: MARGEM e META EM RISCO
+  if (margem < 0.12){
+    addReco('Reduzir custos críticos', 'Renegocie 2 maiores insumos (alvo 3–5%). Revise perdas.', 'Alta', { tipo: 'custos', modeloMsg: 'Olá, podemos revisar nossa tabela? Buscamos reduzir 3–5% nos itens X e Y.', metas: { reduzirCustosPct: 3, prazoDias: 10 } });
+    count++;
+    hasCriticalReco = true;
+  }
+  if (pctMeta < 0.85){
+    addReco('Revisar a Meta Agora', 'Atingiu menos de 85%. Sugestão: reduzir a meta ou focar em 1 ação de ALTO impacto hoje.', 'Alta', { tipo: 'meta-revisao', modeloMsg: 'Time, a meta precisa ser ajustada ou a prioridade de ação precisa subir hoje. Foco na Recorrência.', metas: { revisarMeta: true, prazoDias: 1 } });
+    count++;
+    hasCriticalReco = true;
+  }
+  
+  // 2. FOCO NO SUCESSO E OTIMIZAÇÃO DE LUCRO (Se a Meta está batida ou quase)
+  if (pctMeta >= 0.95 || (pctMeta >= 0.85 && !hasCriticalReco)) {
+      
+      // Ação 1: Maximizar o Ticket (maior impacto no lucro quando o volume é alto)
+      if (ticket < 35 && count < 2) { 
+          addReco('Aumentar Ticket (2ª Compra)', 'Foque em combo de sobremesa/bebida no caixa. Alvo: +R$ 3 no ticket médio.', 'Max. Lucro', { tipo: 'combo-max', modeloMsg: 'Hoje temos Combo Exclusivo para sua sobremesa! Peça no caixa.', metas: { aumentoTicket: 3, prazoDias: 7 } });
+          count++;
       }
+      
+      // Ação 2: Planejamento Próximo Ciclo
+      addReco('Planejar próxima meta (+5–10%)', 'Defina a meta do próximo mês considerando sazonalidade e estoque.', 'Planejamento', { tipo:'meta-planejamento', modeloMsg:'Time, próxima meta definida e publicada no painel. Vamos juntos! 💪', metas:{ prazoDias:3 } });
+      count++;
+
+      // Ação 3: Capitalizar o Crescimento (Top-1)
+      if (trendPct > 0) {
+          addReco('Fortalecer item Top-1', 'Garanta estoque, destaque visual e abordagem ativa no caixa para o mais vendido (aproveite o crescimento!).', 'Otimização', { tipo:'top1-otimizacao', modeloMsg:'Nosso mais pedido está em destaque hoje. Vem provar!', metas:{ prazoDias:5 } });
+          count++;
+      }
+  }
+
+
+  // 3. PRIORIDADE MÉDIA/BAIXA (Se Meta não está batida, mas também não está crítica)
+  if (!hasCriticalReco) {
+      if (ticket < 25 && count < 2){ 
+          addReco('Aumentar ticket com combo', 'Ex.: Café + Doce por R$ 22 (âncora R$ 25). Treine a oferta no caixa.', 'Média', { tipo: 'combo', modeloMsg: 'Hoje temos Combo Café + Doce por R$ 22! Passa aqui e garante o seu 🙂', metas: { aumentoTicket: 3, prazoDias: 7 } });
+          count++;
+      }
+      if (trendPct <= 0 && count < 2){
+          addReco('Reforçar dias fracos', 'Campanha Ter/Qua com brinde ou fidelidade. Meta: +10 clientes/dia.', 'Média', { tipo: 'dias-fracos', modeloMsg: 'Terça e Quarta com brinde surpresa nas compras acima de R$ 20!', metas: { clientesExtraDia: 10, prazoDias: 14 } });
+          count++;
+      }
+
+      // 4. RECORRÊNCIA (Apenas se a taxa for baixa E não tivermos problemas críticos)
+      if (pctRecorrencia < 0.25 && count < 3){
+          addReco('Ativar recorrência', 'Ligue/WhatsApp p/ top 20 clientes do mês passado. Oferta simples.', 'Manutenção', { tipo: 'recorrencia', modeloMsg: 'Voltamos com aquela delícia que você curte! Passa aqui hoje e fale meu nome pra ganhar 5% 🙂', metas: { clientesAlvo: 20, prazoDias: 5 } });
+          count++;
+      }
+  }
+
+  // 5. Garantir mínimo de recomendações
+  while (count < 3) {
+    addReco('Manter ritmo com ajuste fino', 'Revise o preço de 1 item e teste um brinde em horário de menor movimento.', 'Manutenção', { tipo:'manter', modeloMsg:'Hoje tem brinde surpresa nos pedidos das 15h às 17h! Chega mais 🙂', metas:{ prazoDias:7 } });
+    count++;
+  }
+
+
+  // Rotina Sugerida Dinâmica
+  const elRotina = document.getElementById('rotinaSugerida');
+  const liDinamica = document.createElement('li');
+  // Ajuste: Remove itens fixos para posicionar o dinâmico no topo
+  const fixedItems = [
+    '<li>Diariamente (19h): registrar vendas (30s)</li>',
+    '<li>Segunda: revisar painel e definir 1 ação</li>',
+    '<li>Último dia do mês: ajustar meta</li>'
+  ];
+  
+  let tarefa = 'Quarta: revisar as 3 ações ativas na lista de registro.';
+  
+  if (margem < 0.12) {
+    tarefa = '🚨 Foco hoje: Contatar o principal fornecedor para renegociação de custo.';
+  } else if (ticket < 25) {
+    tarefa = '🚨 Foco hoje: Treinar a equipe para vender o combo do dia no caixa.';
+  } else if (pctRecorrencia < 0.25) {
+    tarefa = '🚨 Foco hoje: Enviar mensagem de reativação para 20 clientes inativos.';
+  } else if (pctMeta < 0.95 && pctMeta >= 0.85) {
+    tarefa = '🚨 Foco hoje: Executar a ação de ALTA prioridade para bater a meta.';
+  } else if (pctMeta >= 1.00) {
+    tarefa = '✅ Foco hoje: Planejar a próxima meta de crescimento (+5-10%).';
+  }
+  
+  liDinamica.textContent = tarefa;
+
+  // Limpa o UL e insere os itens na nova ordem
+  elRotina.innerHTML = '';
+  liDinamica.id = 'dynamicTask';
+  elRotina.appendChild(liDinamica);
+  elRotina.insertAdjacentHTML('beforeend', fixedItems.join(''));
+
+  // Simulador
+  function updateSim(){
+    const addTicket = parseFloat(document.getElementById('simTicket').value||0);
+    const addClientes = parseFloat(document.getElementById('simClientes').value||0);
+    const redCustos = parseFloat(document.getElementById('simCustos').value||0);
+    document.getElementById('simTicketVal').textContent = `+${addTicket}`;
+    document.getElementById('simClientesVal').textContent = `+${addClientes}`;
+    document.getElementById('simCustosVal').textContent = `${redCustos}%`;
+    const dias = parseInt(elPeriod.value,10);
+    const mediaClientesDia = clientes/dias;
+    const ticketNovo = ticket + addTicket;
+    const clientesNovos = mediaClientesDia + addClientes;
+    const faturamentoSim = ticketNovo * clientesNovos * dias;
+    const custoBase = (custo/dias) * dias * (1 - redCustos/100);
+    const margemSim = faturamentoSim>0 ? (faturamentoSim - custoBase)/faturamentoSim : 0;
+    const meta = parseFloat(elMeta.value||0);
+    const pctMetaSim = meta>0 ? faturamentoSim/meta : 0;
+    const lab = `Faturamento: ${fmtBR(faturamentoSim)} • Margem: ${(margemSim*100).toFixed(1)}% • Meta: ${Math.round(pctMetaSim*100)}%`;
+    const el = document.getElementById('simResultado'); el.textContent = '📊 Resultado simulado: '+lab;
+    el.style.background = pctMetaSim>=0.95? 'var(--ok)' : pctMetaSim>=0.85? 'var(--warn)' : 'var(--bad)';
+    el.style.color = pctMetaSim>=0.85&&pctMetaSim<0.95? '#111' : '#fff';
+  }
+  ['simTicket','simClientes','simCustos'].forEach(id=>document.getElementById(id).addEventListener('input', updateSim));
+  updateSim();
+}
+
+function toggleGuia() {
+    const content = document.getElementById('guiaContent');
+    const toggle = document.getElementById('guiaToggle');
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        // Alternar ícone (opcional, requer CSS para rotação)
+        toggle.classList.remove('collapsed');
+        // Você pode mudar o texto do ícone aqui se preferir um + / -
+    } else {
+        content.style.display = 'none';
+        toggle.classList.add('collapsed');
+    }
+}
+
+// === Ações reais ===
+function generateActionPlan(acao = {}){
+  const dias = parseInt(document.getElementById('period').value, 10);
+  const fat = document.getElementById('kpiFat').textContent;
+  const cli = document.getElementById('kpiCli').textContent;
+  const ticket = document.getElementById('kpiTicket').textContent;
+  const margem = document.getElementById('kpiMargem').textContent;
+  const pctMeta = document.getElementById('kpiMeta').textContent;
+
+  const titulo = `Plano de Ação — ${acao.tipo || 'genérico'}`;
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  
+  // 1. FORMATAÇÃO DAS METAS (Mais legível que JSON)
+  let metasFormatadas = '';
+  if (acao.metas) {
+      const m = acao.metas;
+      if (m.aumentoTicket) metasFormatadas += `- Aumentar Ticket Médio em R$ ${m.aumentoTicket}\n`;
+      if (m.reduzirCustosPct) metasFormatadas += `- Reduzir Custos em ${m.reduzirCustosPct}%\n`;
+      if (m.clientesExtraDia) metasFormatadas += `- Aumentar Clientes por dia em ${m.clientesExtraDia}\n`;
+      if (m.clientesAlvo) metasFormatadas += `- Contatar ${m.clientesAlvo} clientes inativos\n`;
+      if (m.revisarMeta) metasFormatadas += `- Revisar Meta de Vendas\n`;
+      if (m.prazoDias) metasFormatadas += `- Prazo sugerido: ${m.prazoDias} dias\n`;
+  }
+  if (metasFormatadas === '') metasFormatadas = '—';
+
+  // 2. CHECKLIST DINÂMICO
+  let checklist = [];
+  
+  if (acao.tipo === 'combo' || acao.tipo === 'combo-max' || acao.tipo === 'simulacao') {
+      checklist = [
+          '- Definir o combo e calcular a margem exata',
+          '- Treinar a equipe no caixa (oferta ativa)',
+          '- Criar material visual (cartaz/menu digital)',
+          '- Medir o Ticket Médio diariamente e ajustar'
+      ];
+  } else if (acao.tipo === 'custos') {
+      checklist = [
+          '- Listar os 2 insumos/fornecedores mais caros',
+          '- Agendar reunião de renegociação (alvo: -5%)',
+          '- Pesquisar orçamentos de fornecedores alternativos',
+          '- Atualizar a planilha de custos com o novo valor'
+      ];
+  } else if (acao.tipo === 'recorrencia') {
+      checklist = [
+          '- Identificar os TOP 20 clientes do mês passado',
+          '- Separar a oferta a ser enviada (simples e direta)',
+          '- Agendar o envio da mensagem (WhatsApp/email)',
+          '- Medir o retorno (quantos voltaram?) em 5 dias'
+      ];
+  } else {
+       // Checklist Padrão (Manutenção)
+       checklist = [
+          '- Definir responsável e prazo',
+          '- Revisar o painel novamente em 7 dias',
+          '- Comunicar a ação à equipe',
+          '- Medir resultado e documentar o aprendizado'
+      ];
+  }
+  const checklistFormatado = checklist.map(item => `🧱 ${item}`).join('\n');
+
+
+  const linhas = [
+    titulo,
+    'Data: ' + hoje,
+    '',
+    '📊 Estado atual (No momento da decisão)',
+    `- Período analisado: ${dias} dias`,
+    `- Faturamento: ${fat}`,
+    `- Clientes: ${cli}`,
+    `- Ticket médio: ${ticket}`,
+    `- Margem: ${margem}`,
+    `- Meta atingida: ${pctMeta}`,
+    '',
+    '🎯 Direção da ação',
+    `- Tipo: ${acao.tipo || '—'}`,
+    `\n📈 Metas sugeridas:\n${metasFormatadas}`,
+    '',
+    `\n✅ Checklist de Execução:\n${checklistFormatado}`,
+    '',
+    '🗣️ Mensagem sugerida ao cliente',
+    (acao.modeloMsg || 'Hoje temos uma condição especial. Passa aqui pra aproveitar 🙂'),
+    '',
+    '— Painel PME Inteligente —'
+  ].join('\n');
+
+  const blob = new Blob([linhas], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plano_acao_pme.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function openDailyForm(){
+  const url = 'https://docs.google.com/forms/d/e/1FAIpQLSdOnLyR3-TjKrpPKuItqBzeKkiu9OO3OX6Z5ZnfIBd4wVe41g/viewform?usp=header';
+  window.open(url, '_blank');
+}
+
+// Carregadores e listeners
+async function loadFromUrl(){ const url = (elUrl.value||'').trim(); if(!url){ alert('Cole a URL do CSV publicado (output=csv).'); return; } try{ const txt = await fetchCSV(url); const rows = csvToRows(txt); DATA = hydrate(rows); atualizar(); }catch(e){ console.error(e); alert('Não foi possível ler o CSV. Confira a URL (precisa terminar com output=csv).'); } }
+function loadFromFile(file){ const reader = new FileReader(); reader.onload = e => { try{ const rows = csvToRows(e.target.result); DATA = hydrate(rows); atualizar(); }catch(err){ console.error(err); alert('Arquivo inválido. Verifique os cabeçalhos.'); } }; reader.readAsText(file, 'utf-8'); }
+document.getElementById('btnCarregar').addEventListener('click', loadFromUrl);
+elFile.addEventListener('change', ev => { if(ev.target.files && ev.target.files[0]) loadFromFile(ev.target.files[0]); });
+['change','keyup'].forEach(ev => { elMeta.addEventListener(ev, atualizar); elPeriod.addEventListener(ev, atualizar); });
+
+document.getElementById('btnLembrete').addEventListener('click', createWeeklyICS);
+document.getElementById('btnForm').addEventListener('click', openDailyForm);
+document.getElementById('btnMeta').addEventListener('click', ()=>alert('Atualize o campo Meta Mensal no topo e os KPIs serão recalculados.'));
+
+// Inicializa o painel carregando as ações salvas
+document.addEventListener('DOMContentLoaded', atualizarLogAcoes); 
 </script>
 </body>
 </html>
